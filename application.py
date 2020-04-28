@@ -4,20 +4,20 @@ app = Flask(__name__)
 app.config["DEBUG"] = True
 
 # Initial application has two customers
-storeApi = [
-    {"scarlett": [
-        {"n":3},
-        {"code":"ABC"},
-        {"purchaseCount":7},
-        {"discountUsed":2}
-    ]},
-    {"adrian": [
-        {"n":None},
-        {"code":None},
-        {"purchaseCount":0},
-        {"discountUsed":0}
-    ]}
-]
+storeApi = {
+    "scarlett": {
+        "n":3,
+        "code":"ABC",
+        "purchaseCount":7,
+        "discountUsed":2
+    },
+    "adrian": {
+        "n":0,
+        "code":None,
+        "purchaseCount":0,
+        "discountUsed":2,
+    }
+}
 
 # index
 @app.route("/")
