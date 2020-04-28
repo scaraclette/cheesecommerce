@@ -26,15 +26,20 @@ def index():
 
 # APIs
 
+# The following method sets the nth interval and discount code
+# an example url to call the api: /admin/set?name=scarlett&n=3&code=abc
+@app.route("/admin/set", methods=['POST'])
+def set():
+    name = request.args.get('name', type=str)
+    nInterval = request.args.get('n', type=int)
+    code = request.args.get('code', type=str)
+    
+    
+    
+
 
 
 # Route used using debugging program to check all current customers
 @app.route("/check-api/")
 def checkApi():
     return jsonify(storeApi)
-
-# TODO delete later
-@app.route('/add', methods=['POST'])
-def add():
-    data = request.get_json()
-    return jsonify({'sum': data['a'] + data['b']})
