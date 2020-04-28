@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
@@ -19,10 +19,6 @@ storeApi = {
     }
 }
 
-# index
-@app.route("/")
-def index():
-    return render_template("index.html")
 
 # APIs
 
@@ -30,7 +26,7 @@ def index():
 # an example url to call the api: /admin/set?name=scarlett&n=3&code=abc
 @app.route("/admin/set", methods=['POST'])
 def set():
-    if request.method == 'post':
+    if request.method == 'POST':
         name = request.args.get('name', type=str)
         n = request.args.get('n', type=int)
         code = request.args.get('code', type=str)
@@ -50,15 +46,33 @@ def set():
 
         return jsonify({'msg':'created/updated'}), 201
 
-    # When request is GET
-    return jsonify({'msg':'invalid method'}), 404
+    # When request is GET, return error
+    return jsonify({'msg':'method not allowed'}), 405
     
+# The following method lets customers make purchase while automatically checks for discount
+# an example url to call the api: /buy?name=scarlett
+@app.route("/buy", methods=['GET', 'POST'])
+def buy():
+    if request.method == 'POST':
+        # TODO: make purchase
+        pass
+
+    # if request is GET, return error
+    return jsonify({'msg':'method not allowed'}), 405
+
     
-    
-
-
-
 # Route used using debugging program to check all current customers
 @app.route("/check-api/")
 def checkApi():
     return jsonify(storeApi)
+
+# --------------------------------------------------------------------------------------------
+
+# index
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/admin")
+def admin():
+    return render_template("admin.html")
