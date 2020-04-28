@@ -30,9 +30,28 @@ def index():
 # an example url to call the api: /admin/set?name=scarlett&n=3&code=abc
 @app.route("/admin/set", methods=['POST'])
 def set():
-    name = request.args.get('name', type=str)
-    nInterval = request.args.get('n', type=int)
-    code = request.args.get('code', type=str)
+    if request.method == 'post':
+        name = request.args.get('name', type=str)
+        n = request.args.get('n', type=int)
+        code = request.args.get('code', type=str)
+        # if customer exists, updates data from dictionary, else create new customer
+        if storeApi.get(name) is not None:
+            storeApi.get(name).update({'n':n})
+            storeApi.get(name).update({'code':code})
+        else:
+            newCustomer = {
+                'n' : n,
+                'purchases' : 0,
+                'code' : code,
+                'discountUsed': 0, 
+            }
+            # Appends to dictionary
+            storeApi.update({name:newCustomer})
+
+        return jsonify({'msg':'created/updated'}), 201
+
+    # When request is GET
+    return jsonify({'msg':'invalid method'}), 404
     
     
     
