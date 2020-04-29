@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("hello");
 
     // Get current report for total purchases and total discounts given
     getReport();
@@ -7,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Calls the API to set new nth value and new discount code
     document.getElementById("setAll").onclick = () => {
-        console.log("clicked button");
         let nVal = document.getElementById("nth").value;
         let codeVal = document.getElementById("disCode").value;
 
@@ -16,12 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
             setRequest.open('POST', '/admin/set');
             setRequest.onload = () => {
                 const data = JSON.parse(setRequest.responseText);
-                console.log(data);
                 alert("new values set!");
             }
 
             let setData = JSON.stringify({'n':nVal, 'code':codeVal}); 
-            console.log(setData);
             setRequest.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
             setRequest.send(setData);
 
@@ -39,7 +35,6 @@ function getReport() {
     reportRequest.onload = () => {
         const data = JSON.parse(reportRequest.responseText);
         document.getElementById("currentReport").innerHTML = JSON.stringify(data);
-        console.log(data);
     }
     reportRequest.send();
 }
