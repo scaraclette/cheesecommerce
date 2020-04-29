@@ -12,10 +12,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = JSON.parse(buyRequest.responseText);
             alert(JSON.stringify(data));
         }
-        buyRequest.send();
+
+        let applied = false;
+        if (document.getElementById("applyCoupon").checked) {
+            applied = true;
+        }        
+        let buyData = JSON.stringify({'applyCoupon':applied})
+        buyRequest.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        buyRequest.send(buyData);
     }
 
 });
+
 
 // function to call GET method from getDiscount route
 function getCoupon() {
@@ -24,7 +32,7 @@ function getCoupon() {
     couponRequest.onload = () => {
         const data = JSON.parse(couponRequest.responseText);
         document.getElementById("hasCoupon").innerHTML = JSON.stringify(data);
-        
+
     }
     couponRequest.send();
 }

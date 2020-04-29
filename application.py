@@ -14,16 +14,24 @@ storeApi = {
     APIs
 '''
 # The following method sets the nth interval and discount code as Admin
-# API is called through JavaScript with example URL /admin/set?n=3&code=abc
+# POST /admin/set
+# request body {
+#    'n': <nth interval> <int>,
+#    'code': <discount code> <string>
+# }
+#
+# response body: {
+#   'msg': <message> <string>
+# }
+# status 201
+# status 405
 @app.route("/admin/set", methods=['POST'])
 def setAdmin():
     if request.method == 'POST':
-        # n = request.args.get('n', type=int)
-        # code = request.args.get('code', type=str)
         data = request.get_json()
-        print(data)
         n = data['n']
         code = data['code']
+
         storeApi.update({'n':int(n)})
         storeApi.update({'code':code})
         return jsonify({'msg':'created/updated'}), 201
@@ -32,7 +40,12 @@ def setAdmin():
     return jsonify({'msg':'method not allowed'}), 405
     
 # The following method returns the Admin report, report includes count of purchases and the total count of discounts that were given
-# Only GET method is possible
+# GET /admin/report
+# response body {
+#   'Number of purchases made: ' : <purchaseCount> <int>,
+#   'Amount of discount used: ' : <discountUsed> <int>
+# }
+# status 200
 @app.route('/admin/report')
 def report():
     purchaseCount = storeApi.get('purchaseCount')
@@ -41,15 +54,28 @@ def report():
     return jsonify(reportApi), 200
 
 # The following method lets customers make purchase while automatically checks for discount
+# POST /customer/buy
+# request body {
+#   'applyCoupon' : <applied> <boolean>
+# }
+# response body {
+#   'msg' : <message> <string>
+# }
+# status 200
+# status 405
 @app.route("/customer/buy", methods=['POST'])
 def buy():
     if request.method == 'POST':
+        # Check if coupon was applied
+        data = request.get_json()
+        applied = data['applyCoupon']
+
         # Customer makes purchase which increments count
         incrementPurchase()
 
         # Call hasCoupon method to check if there is discount
         purchaseCount = storeApi.get('purchaseCount')
-        if hasCoupon(purchaseCount):
+        if hasCoupon(purchaseCount, applied):
             incrementDiscount()
             return jsonify({'msg': 'purchase made, COUPON USED'}), 200
         
@@ -60,15 +86,20 @@ def buy():
     return jsonify({'msg':'method not allowed'}), 405
 
 # The following method returns a JSON object of whether or not customer has discount
+# GET /customer/get-discount
+# response body {
+#   'msg' : <message> <string>
+# }
+# status 200
+# status 404
 @app.route("/customer/get-discount")
 def getDiscount():
     # Call hasCoupon method to check if there is discount
     purchaseCount = storeApi.get('purchaseCount')
-    if hasCoupon(purchaseCount + 1):
-        print("here...")
-        return jsonify({'msg':'discount available','code':storeApi.get('code')})
+    if hasCoupon(purchaseCount + 1, True):
+        return jsonify({'msg':'discount available','code':storeApi.get('code')}), 200
     
-    return jsonify({'msg':'no discount available'})
+    return jsonify({'msg':'no discount available'}), 404
     
 
 '''
@@ -85,9 +116,9 @@ def incrementDiscount():
     storeApi.update({'discountUsed':discountUsed})
 
 # Helper method to determin whether purhcase has coupon, returns boolean
-def hasCoupon(purchaseCount):
+def hasCoupon(purchaseCount, applied):
     n = storeApi.get('n')
-    if n == 0:
+    if n == 0 or applied == False:
         return False
     if purchaseCount % n == 0:
         return True    
