@@ -72,7 +72,7 @@ def getDiscount():
     
 
 '''
-    HELPER METHOD
+    HELPER METHODS
 '''
 # Helper method to increment purchase
 def incrementPurchase():
@@ -92,7 +92,6 @@ def hasCoupon(purchaseCount):
     if purchaseCount % n == 0:
         return True    
     return False
-
     
 # Route used using debugging program to check all data
 @app.route("/check-api/")

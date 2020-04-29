@@ -1,5 +1,5 @@
 # Cheesecommerce
-A simple Flask application.
+A simple Flask application. 
 
 ## Installing
 On working directory (Linux/MacOS)
@@ -14,3 +14,4 @@ c:..> set FLASK_APP=application.py
 c:..> set FLASK_ENV=development
 c:..> flask run
 ```
+
