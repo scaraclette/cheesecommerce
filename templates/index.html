@@ -1,11 +1,13 @@
 {% extends "layout.html" %}
 
-{% block script %}{% endblock %}
+{% block script %}
+<script src="{{ url_for('static', filename='store.js') }}"></script>
+{% endblock %}
 
 {% block body %}
-    <div class="container">
-        <p>Hello</p><br>
-        <p>Test bootstrap button</p><br>
-        <button type="button" class="btn btn-primary">Primary</button>
+    <div class="container text-center">
+        <h4>Would you like to buy more cheese?</h4>
+        <button type="button" id="buyMore" class="btn btn-warning btn-large">YES PLEASE!</button>
+        <br>
     </div>
 {% endblock %}
