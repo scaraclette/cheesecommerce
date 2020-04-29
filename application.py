@@ -4,10 +4,10 @@ app = Flask(__name__)
 app.config["DEBUG"] = True
 
 storeApi = {
-    "n":0,
-    "code":None,
-    "purchaseCount":0,
-    "discountUsed":0,
+    'n':0,
+    'code':None,
+    'purchaseCount':0,
+    'discountUsed':0,
 }
 
 '''
@@ -18,10 +18,13 @@ storeApi = {
 @app.route("/admin/set", methods=['POST'])
 def setAdmin():
     if request.method == 'POST':
-        n = request.args.get('n', type=int)
-        data = request.json
-        code = request.args.get('code', type=str)
-        storeApi.update({'n':n})
+        # n = request.args.get('n', type=int)
+        # code = request.args.get('code', type=str)
+        data = request.get_json()
+        print(data)
+        n = data['n']
+        code = data['code']
+        storeApi.update({'n':int(n)})
         storeApi.update({'code':code})
         return jsonify({'msg':'created/updated'}), 201
 
@@ -38,7 +41,7 @@ def report():
     return jsonify(reportApi), 200
 
 # The following method lets customers make purchase while automatically checks for discount
-@app.route("/customer/buy", methods=['GET', 'POST'])
+@app.route("/customer/buy", methods=['POST'])
 def buy():
     if request.method == 'POST':
         # Customer makes purchase which increments count
@@ -48,13 +51,25 @@ def buy():
         purchaseCount = storeApi.get('purchaseCount')
         if hasCoupon(purchaseCount):
             incrementDiscount()
-            return jsonify({'msg': 'purchase made, COUPON AVAILABLE'}), 200
+            return jsonify({'msg': 'purchase made, COUPON USED'}), 200
         
         # By default coupon is not available
-        return jsonify({'msg': 'purchase made, no coupon available'}), 200
+        return jsonify({'msg': 'purchase made'}), 200
 
     # if request is GET, return error
     return jsonify({'msg':'method not allowed'}), 405
+
+# The following method returns a JSON object of whether or not customer has discount
+@app.route("/customer/get-discount")
+def getDiscount():
+    # Call hasCoupon method to check if there is discount
+    purchaseCount = storeApi.get('purchaseCount')
+    if hasCoupon(purchaseCount + 1):
+        print("here...")
+        return jsonify({'msg':'discount available','code':storeApi.get('code')})
+    
+    return jsonify({'msg':'no discount available'})
+    
 
 '''
     HELPER METHOD
