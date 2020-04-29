@@ -22,33 +22,34 @@ storeApi = {
 
 # APIs
 
-# The following method sets the nth interval and discount code
-# an example url to call the api: /admin/set?name=scarlett&n=3&code=abc
+# The following method sets the nth interval and discount code for all customers
+# an example url to call the api: /admin/set?n=3&code=abc
 @app.route("/admin/set", methods=['POST'])
 def set():
     if request.method == 'POST':
-        name = request.args.get('name', type=str)
         n = request.args.get('n', type=int)
         code = request.args.get('code', type=str)
-        # if customer exists, updates data from dictionary, else create new customer
-        if storeApi.get(name) is not None:
-            storeApi.get(name).update({'n':n})
-            storeApi.get(name).update({'code':code})
-        else:
-            newCustomer = {
-                'n' : n,
-                'purchases' : 0,
-                'code' : code,
-                'discountUsed': 0, 
-            }
-            # Appends to dictionary
-            storeApi.update({name:newCustomer})
-
+        for names in storeApi:
+            storeApi.get(i).update({'n':n})
+            storeApi.get(i).update({'code':code})
         return jsonify({'msg':'created/updated'}), 201
 
     # When request is GET, return error
     return jsonify({'msg':'method not allowed'}), 405
     
+# The following method returns the Admin report, report includes count of purchases and the total count of discounts that were given
+# an example url to call the api: /admin/report?name=scarlett. Only GET method is possible
+@app.route('/admin/report')
+def report():
+    name = request.args.get('name', type=str)
+    if storeApi.get(name) is not None:
+        purchaseCount = storeApi.get(name).get('n')
+        discountUsed = storeApi.get(name).get('purchaseCount')
+        reportApi = {'Number of purchases made: ': purchaseCount, 'Amount of discount used: ':discountUsed}
+        return jsonify(reportApi), 200
+    else:
+        return jsonify({'msg':'user not found'}), 404
+
 # The following method lets customers make purchase while automatically checks for discount
 # an example url to call the api: /buy?name=scarlett
 @app.route("/buy", methods=['GET', 'POST'])
@@ -66,13 +67,19 @@ def buy():
 def checkApi():
     return jsonify(storeApi)
 
-# --------------------------------------------------------------------------------------------
+
+'''
+    METHODS FOR ACCESSING PAGES
+'''
 
 # index
 @app.route("/")
 def index():
     return render_template("index.html")
 
-@app.route("/admin")
+@app.route("/admin/")
 def admin():
-    return render_template("admin.html")
+    customerNames = []
+    for names in storeApi:
+        customerNames.append(names)
+    return render_template("admin.html", names=customerNames)
