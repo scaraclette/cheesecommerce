@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let nVal = document.getElementById("nth").value;
         let codeVal = document.getElementById("disCode").value;
 
-        if (nVal > 0 && codeVal != "") {
+        if (nVal >= 0 && codeVal != "") {
             let url = '/admin/set?n=' + nVal + '&code=' + codeVal;
             // console.log(url)
 

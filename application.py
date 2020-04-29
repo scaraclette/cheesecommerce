@@ -19,6 +19,7 @@ storeApi = {
 def setAdmin():
     if request.method == 'POST':
         n = request.args.get('n', type=int)
+        data = request.json
         code = request.args.get('code', type=str)
         storeApi.update({'n':n})
         storeApi.update({'code':code})
@@ -37,29 +38,45 @@ def report():
     return jsonify(reportApi), 200
 
 # The following method lets customers make purchase while automatically checks for discount
-# an example url to call the api: /buy?name=scarlett
-@app.route("/buy", methods=['GET', 'POST'])
+@app.route("/customer/buy", methods=['GET', 'POST'])
 def buy():
     if request.method == 'POST':
-        currentPurchaseCount = storeApi.get('purchaseCount')
-        nValue = storeApi.get('n')
-        # If n is 0, first purchase will never have coupon
-        if nValue == 0:
-            storeApi.update({'purchaseCount':currentPurchaseCount+1})
-            return jsonify({'msg':'purchase made, no coupon'}), 200     
+        # Customer makes purchase which increments count
+        incrementPurchase()
 
-        if nValue != 0 and currentPurchaseCount % nValue == 0:
-            discountUsed = storeApi.get('discountUsed')
-            storeApi.update({'purchaseCount':currentPurchaseCount+1})
-            storeApi.update({'discountUsed':discountUsed+1})
-            return jsonify({'msg':'purchase made, COUPON AVAILABLE!'}), 200 
+        # Call hasCoupon method to check if there is discount
+        purchaseCount = storeApi.get('purchaseCount')
+        if hasCoupon(purchaseCount):
+            incrementDiscount()
+            return jsonify({'msg': 'purchase made, COUPON AVAILABLE'}), 200
         
-        # By default, nth value is either 0 or it is not nth purchase
-        storeApi.update({'purchaseCount':currentPurchaseCount+1})
-        return jsonify({'msg':'purchase made, no coupon'}), 200 
+        # By default coupon is not available
+        return jsonify({'msg': 'purchase made, no coupon available'}), 200
 
     # if request is GET, return error
     return jsonify({'msg':'method not allowed'}), 405
+
+'''
+    HELPER METHOD
+'''
+# Helper method to increment purchase
+def incrementPurchase():
+    currentPurchaseCount = storeApi.get('purchaseCount')+1
+    storeApi.update({'purchaseCount':currentPurchaseCount})
+
+# Helper method to increment discount
+def incrementDiscount():
+    discountUsed = storeApi.get('discountUsed')+1
+    storeApi.update({'discountUsed':discountUsed})
+
+# Helper method to determin whether purhcase has coupon, returns boolean
+def hasCoupon(purchaseCount):
+    n = storeApi.get('n')
+    if n == 0:
+        return False
+    if purchaseCount % n == 0:
+        return True    
+    return False
 
     
 # Route used using debugging program to check all data
@@ -72,9 +89,9 @@ def checkApi():
     METHODS FOR UI
 '''
 # Method that directs to index page
-@app.route("/")
+@app.route("/customer/")
 def index():
-    return render_template("index.html")
+    return render_template("customer.html")
 
 # Method that directs to admin page
 @app.route("/admin/")
