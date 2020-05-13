@@ -1,5 +1,5 @@
 # Cheesecommerce
-A simple Flask application. 
+A simple Flask application with client-side rendering through vanilla JavaScript. 
 
 ## Installing packages
 * Create a virtual environment then start (optional)
